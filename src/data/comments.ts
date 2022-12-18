@@ -1,4 +1,4 @@
-import {subtractHours} from "src/lib/date";
+import { subtractHours } from "../lib/date";
 
 interface IPagination<T> {
     pagination: {
