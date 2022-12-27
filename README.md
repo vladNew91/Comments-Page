@@ -1,11 +1,12 @@
 # Comments Page
 
-# [Demo]()
+# [Demo](https://comments-page-vladnew91.netlify.app)
 
 Conditions:
 1. Show comments, using requests from `src/api`.
 2. Show sum of likes and comments.
 
+Example template
 ![preview.png](preview.png)
 
 ## List of technologies
