@@ -1,80 +1,71 @@
 import React, { useCallback, useEffect, useState } from "react";
 import getAuthorsRequest from "./api/authors/getAuthorsRequest";
 import getCommentsRequest from "./api/comments/getCommentsRequest";
-import { MainComponent } from "./components";
-import { Author, IPagination } from "./types";
+import { ErrorAlertComponent, LoadingComponent, MainComponent } from "./components";
+import { Author, IPagination, Comment, Pagination } from "./types";
 import "./App.css";
 
-const first = 1;
-
-export interface Data {
-    authors: Author[],
-    iPagination: IPagination;
-}
+const firstPage = 1;
 
 function App() {
-    const [data, setData] = useState<Data>();
-
+    const [page, setPage] = useState<number>(firstPage);
     const [requestError, setRequestError] = useState<boolean>(false);
-    const [page, setPage] = useState<number>(first);
     const [loading, setLoading] = useState<boolean>(false);
 
     const [authors, setAuthors] = useState<Author[]>();
-    const [pagination, setPagination] = useState<IPagination>();
-
-    const makeRequest = async (page: number) => {
-        toggleLoading();
-
-        try {
-            const reqAuthors: Author[] = await getAuthorsRequest();
-            const reqPagination: IPagination = await getCommentsRequest(page);
-
-            setAuthors(reqAuthors);
-            setPagination(reqPagination);
-
-            setData(() => {
-                if(!data) return {authors: reqAuthors, iPagination: reqPagination};
-
-                return {
-                    authors: reqAuthors,
-                    iPagination: {
-                        pagination: {
-                            page: page,
-                            size: data.iPagination.pagination.page + reqPagination.pagination.size,
-                            total_pages: data.iPagination.pagination.total_pages,
-                        },
-                        data: reqPagination.data,
-                    },
-                }
-            })
-        } catch (error) {
-            console.log(error);
-            const reqAuthors = await getAuthorsRequest();
-            const reqPagination = await getCommentsRequest(page);
-
-            setAuthors(reqAuthors);
-            setPagination(reqPagination);
-        }
-        
-        toggleLoading();
-    };
+    const [pagination, setPagination] = useState<Pagination>();
+    const [comments, setComments] = useState<Comment[]>();
 
     useEffect(() => {
-        makeRequest(page);
+        setRequestError(false);
+        makeRequest();
     }, [page]);
-
-    console.log(authors);
-    console.log(pagination);
 
     const toggleLoading = useCallback(() => setLoading(state => !state), []);
 
-    if (loading || !data) return <div className="App"><h3>Loading</h3></div>
+    const makeRequest = useCallback(async function makeRequest() {
+        toggleLoading();
+
+        try {
+            const authorsRes: Author[] = await getAuthorsRequest();
+            const iPaginationRes: IPagination = await getCommentsRequest(page);
+
+            setAuthors(authorsRes);
+            setPagination(iPaginationRes.pagination);
+
+            !comments ? setComments(iPaginationRes.data) : setComments([...comments, ...iPaginationRes.data]);
+        } catch (error) {
+            console.log(error);
+            setRequestError(true);
+            makeRequest();
+        }
+
+        toggleLoading();
+    }, [comments, page, toggleLoading]);
 
     return (
         <div className="App">
-            <MainComponent page={page} setPage={setPage} data={data} />
+            {loading && <LoadingComponent />}
+            {!authors && !pagination && <LoadingComponent />}
 
-            {requestError && <div>Error</div>}
+            {
+                (authors && pagination && comments)
+                &&
+                <MainComponent
+                    page={page}
+                    setPage={setPage}
+                    authors={authors}
+                    pagination={pagination}
+                    comments={comments.filter(el => !el.parent)}
+                    likes={comments.filter(el => !el.parent).reduce((acc: number, el: Comment) => {
+                        acc += el.likes;
+                        return acc;
+                    }, 0)}
+                    loading={loading}
+                />
+            }
+
+            {requestError && <ErrorAlertComponent />}
         </div>
     );
 }

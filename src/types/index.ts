@@ -13,11 +13,13 @@ export interface Comment {
     likes: number;
 }
 
+export interface Pagination {
+    page: number;
+    size: number;
+    total_pages: number;
+}
+
 export interface IPagination {
-    pagination: {
-        page: number;
-        size: number;
-        total_pages: number;
-    };
+    pagination: Pagination;
     data: Comment[];
 }

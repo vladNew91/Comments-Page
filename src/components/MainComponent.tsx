@@ -1,51 +1,70 @@
 import React, { useCallback } from "react";
-import { Author } from "../types";
-import { AuthorComponent } from "../components";
-import { Data } from "../App";
+import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { Author, Comment, Pagination } from "../types";
+import { CommentComponent, LikesComponent } from "../components";
 
 interface MainComponentProps {
-    data: Data,
+    authors: Author[];
+    pagination: Pagination;
     page: number;
     setPage: (page: number) => void;
+    comments: Comment[];
+    likes: number;
+    loading: boolean;
 }
 
 export const MainComponent: React.FC<MainComponentProps> = ({
-    data,
+    authors,
+    pagination,
     page,
     setPage,
+    comments,
+    likes,
+    loading,
 }: MainComponentProps): JSX.Element => {
-    const handleLoadComments = useCallback(() => setPage(page + 1), [page]);
+    const handleLoadComments = useCallback(() => setPage(page + 1), [page, setPage]);
 
-    const getLikes = useCallback(() => {
-        let likes = 0;
-        data.iPagination.data.forEach(el => likes += el.likes);
-        return likes;
-    }, [data]);
-
-    const getComments = useCallback(() => {
-        let comments = 0; 
-        data.iPagination.data.forEach(el => comments = el.text ? comments + 1 : comments);
-        return comments;
-    }, [data]);
-    
-    console.log(data);
+    const isDisabledButton: boolean = page === pagination.total_pages;
 
     return (
         <React.Fragment>
             <header className="App-header">
-                <span>{getComments()} comments</span>
-                <span>&#10084; {getLikes()}</span>
+                <span>{comments.length} comments</span>
+
+                <LikesComponent likes={likes} />
             </header>
 
             <main className="App-main">
-                {data.authors.map((author: Author, i: number) => <AuthorComponent key={i} data={data} author={author}/>)}
+                {comments.map(comment => {
+                    return (
+                        <CommentComponent
+                            key={comment.id}
+                            comment={comment}
+                            author={authors.filter((author: Author) => author.id === comment.author)}
+                        // innerComments={pagination.data.filter(el => el.parent === comment.id)}
+                        />
+                    );
+                })}
             </main>
 
-            {/* <div>
-                {data[1].data.map((comment: Comment) => <div key={comment.id}>{comment.text}</div>)}
-            </div> */}
-
-            <button disabled={!data || page === data.iPagination.pagination.total_pages} onClick={handleLoadComments}>Load more comments</button>
+            {!loading ?
+                (
+                    <Button
+                        variant="contained"
+                        disabled={isDisabledButton}
+                        onClick={handleLoadComments}
+                    >
+                        Load more comments
+                    </Button>
+                )
+                :
+                (
+                    <LoadingButton loading variant="outlined">
+                        Loading
+                    </LoadingButton>
+                )
+            }
         </React.Fragment>
     );
 };
