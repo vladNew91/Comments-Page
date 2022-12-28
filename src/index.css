@@ -5,6 +5,14 @@ body {
         "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 5%;
+    box-sizing: border-box;
+    font-size: calc(10px + 1vmin);
+    color: white;
 }
 
 code {

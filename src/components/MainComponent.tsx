@@ -8,20 +8,20 @@ interface MainComponentProps {
     authors: Author[];
     pagination: Pagination;
     page: number;
-    setPage: (page: number) => void;
-    comments: Comment[];
     likes: number;
     loading: boolean;
+    comments: Comment[];
+    setPage: (page: number) => void;
 }
 
 export const MainComponent: React.FC<MainComponentProps> = ({
     authors,
     pagination,
     page,
-    setPage,
-    comments,
     likes,
     loading,
+    comments,
+    setPage,
 }: MainComponentProps): JSX.Element => {
     const handleLoadComments = useCallback(() => setPage(page + 1), [page, setPage]);
 
@@ -54,6 +54,7 @@ export const MainComponent: React.FC<MainComponentProps> = ({
                         variant="contained"
                         disabled={isDisabledButton}
                         onClick={handleLoadComments}
+                        fullWidth
                     >
                         Load more comments
                     </Button>

@@ -5,7 +5,9 @@ interface AuthorComponentProps {
     author: Author;
 }
 
-export const AuthorComponent: React.FC<AuthorComponentProps> = ({ author }: AuthorComponentProps): JSX.Element => {
+export const AuthorComponent: React.FC<AuthorComponentProps> = ({
+    author
+}: AuthorComponentProps): JSX.Element => {
     return (
         <div className="App-comment">
             <img className="App-avatar" src={author.avatar} alt="avatar" />
