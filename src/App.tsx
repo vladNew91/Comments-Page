@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import getAuthorsRequest from "./api/authors/getAuthorsRequest";
 import getCommentsRequest from "./api/comments/getCommentsRequest";
 import { Author, IPagination, Comment, Pagination } from "./types";
@@ -23,6 +23,15 @@ function App() {
 
     const toggleLoading = useCallback(() => setLoading(state => !state), []);
 
+    const getLikes: number = useMemo(() => {
+        if (!comments) return 0;
+
+        return comments.reduce((acc: number, el: Comment) => {
+            acc += el.likes;
+            return acc;
+        }, 0);
+    }, [comments]);
+
     const makeRequest = useCallback(async () => {
         toggleLoading();
 
@@ -33,7 +42,9 @@ function App() {
             setAuthors(authorsRes);
             setPagination(iPaginationRes.pagination);
 
-            !comments ? setComments(iPaginationRes.data) : setComments([...comments, ...iPaginationRes.data]);
+            //  filter and set outher comments
+            !comments ? setComments(iPaginationRes.data.filter(el => !el.parent))
+                : setComments([...comments, ...iPaginationRes.data.filter(el => !el.parent)]);
         } catch (error) {
             console.log(error);
             setRequestError(true);
@@ -47,27 +58,19 @@ function App() {
         <div className="App">
             {loading && <LoadingComponent />}
             {!authors && !pagination && <LoadingComponent />}
+            {requestError && <ErrorAlertComponent />}
 
-            {
-                (authors && pagination && comments)
-                &&
+            {(authors && pagination && comments) && (
                 <MainComponent
                     page={page}
                     setPage={setPage}
                     authors={authors}
                     loading={loading}
                     pagination={pagination}
-                    // filter outher comments
-                    comments={comments.filter(el => !el.parent)}
-                    // filter outher comments and get sum of likes
-                    likes={comments.filter(el => !el.parent).reduce((acc: number, el: Comment) => {
-                        acc += el.likes;
-                        return acc;
-                    }, 0)}
+                    comments={comments}
+                    likes={getLikes}
                 />
-            }
-
-            {requestError && <ErrorAlertComponent />}
+            )}
         </div>
     );
 }

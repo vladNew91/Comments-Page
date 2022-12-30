@@ -17,7 +17,7 @@ export const CommentComponent: React.FC<CommentComponentProps> = ({
     // innerComments,
 }: CommentComponentProps): JSX.Element => {
     // console.log(innerComments);
-    const commentTime = useMemo(() => timeToUTC(comment.created), []);
+    const commentTime = useMemo(() => timeToUTC(comment.created), [comment.created]);
 
     return (
         <>

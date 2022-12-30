@@ -48,7 +48,17 @@ export const MainComponent: React.FC<MainComponentProps> = ({
                 })}
             </main>
 
-            {!loading ?
+            {loading ?
+                (
+                    <LoadingButton
+                        loading
+                        variant="outlined"
+                        fullWidth
+                    >
+                        Loading
+                    </LoadingButton>
+                )
+                :
                 (
                     <Button
                         variant="contained"
@@ -58,12 +68,6 @@ export const MainComponent: React.FC<MainComponentProps> = ({
                     >
                         Load more comments
                     </Button>
-                )
-                :
-                (
-                    <LoadingButton loading variant="outlined">
-                        Loading
-                    </LoadingButton>
                 )
             }
         </React.Fragment>

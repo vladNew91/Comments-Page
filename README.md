@@ -33,4 +33,4 @@ Builds the app for production to the `build` folder.
 
 [MUI](https://mui.com/)\
 [React documentation](https://reactjs.org/)\
-[TypeScript documentation](https://www.typescriptlang.org/docs/)\
+[TypeScript documentation](https://www.typescriptlang.org/docs/)
